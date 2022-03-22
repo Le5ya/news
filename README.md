@@ -1,3 +1,3 @@
 # News
 
-[#Посмотреть](https://le5ya.github.io/news/)
+[# Посмотреть](https://le5ya.github.io/news/)
