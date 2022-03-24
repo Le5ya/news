@@ -8,8 +8,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Only Fresh News</title>
     <link rel="stylesheet" href="css/normalize.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"
+    ></script>
+
     <link rel="stylesheet" href="css/default.css" />
     <link rel="stylesheet" href="css/style.css" />
+
+    <script src="js/script.js" defer></script>
   </head>
 
   <body>
@@ -39,7 +50,7 @@
             </button>
           </label>
 
-          <select name="country" class="js-coice">
+          <select name="country" class="js-choice">
             <option value="">Выберите страну</option>
             <option value="ru">Россия</option>
             <option value="us">США</option>
@@ -48,7 +59,6 @@
             <option value="pl">Польша</option>
             <option value="lv">Латвия</option>
             <option value="lt">Литва</option>
-            <option value="ua">Украина</option>
           </select>
         </form>
       </div>
