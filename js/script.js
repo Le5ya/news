@@ -18,13 +18,20 @@ const choices = new Choices(choicesElem, {
   itemSelectText: "",
 });
 
-const getdata = async (url) => {
-  const response = await fetch(url, {
-    // mode: "no-cors",
+const getdata = async (error, url) => {
+  return fetch(url, {
     headers: {
       "X-Api-Key": API_KEY,
     },
-  });
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw error(new Error(response.status));
+      }
+      return response.json();
+    })
+    .catch(error);
+  // mode: "no-cors",
 
   const data = await response.json();
 
@@ -95,6 +102,12 @@ const renderCard = (data) => {
     }
   );
 };
+const showError = (err) => {
+  console.warn(err);
+  newsList.textContent = "";
+  title.textContent = "Произошла ошибкаб попробуйте позже";
+  title.clasList.remove("hide");
+};
 
 const loadNews = async () => {
   // newsList.innerHTML = '<li class="preload"></li>';
@@ -106,13 +119,16 @@ const loadNews = async () => {
   title.classList.add("hide");
 
   const data = await getdata(
+    showError,
     `https://newsapi.org/v2/top-headlines?country=${country}&pageSize=100&category=science`
   );
   renderCard(data.articles);
 };
 
 const loadSearch = async (value) => {
+  newsList.innerHTML = '<li class="preload"></li>';
   const data = await getdata(
+    showError,
     `https://newsapi.org/v2/everything?q=${value}&pageSize=100`
   );
   title.classList.remove("hide");
