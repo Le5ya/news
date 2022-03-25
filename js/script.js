@@ -88,7 +88,10 @@ const renderCard = (data) => {
 };
 
 const loadNews = async () => {
-  newsList.innerHTML = '<li class="preload"></li>';
+  // newsList.innerHTML = '<li class="preload"></li>';
+  const preload = document.createElement("li");
+  preload.className = "preload";
+  newsList.append(preload);
   const country = localStorage.getItem("country") || "ru";
   choices.setChoiceByValue(country);
   title.classList.add("hide");
@@ -103,6 +106,18 @@ const loadSearch = async (value) => {
   const data = await getdata(
     `https://newsapi.org/v2/everything?q=${value}&pageSize=100`
   );
+
+  // wordForm = function (value, words) {
+  //   words = ["результат", "результата", "результатов"];
+  //   value = Math.abs(value) % 100;
+  //   let n = value % 10;
+  //   if (value > 10 && value < 20) return words[2];
+  //   if (n > 1 && n < 5) return words[1];
+  //   if (n === 1) return words[0];
+  //   return words[2];
+  // };
+  // let res = wordForm()
+
   title.classList.remove("hide");
   title.textContent = `По вашему запросу “${value}” найдено ${data.articles.length} результатов`;
   choices.setChoiceByValue("");
