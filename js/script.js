@@ -1,12 +1,14 @@
 const API_KEY = "d773b6729754413abf0cb131aec6edc1";
 const choicesElem = document.querySelector(".js-choice");
 const newsList = document.querySelector(".news-list");
+const formSearch = document.querySelector(".form-search");
+const title = document.querySelector(".title");
 
 const choices = new Choices(choicesElem, {
   searchEnabled: false,
   itemSelectText: "",
 });
-// console.log(choices);
+
 const getdata = async (url) => {
   const response = await fetch(url, {
     // mode: "no-cors",
@@ -19,37 +21,104 @@ const getdata = async (url) => {
 
   return data;
 };
+const getDateCorrectFormat = (isoDate) => {
+  const date = new Date(isoDate);
+  const fullDate = date.toLocaleString("en-GB", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
+
+  const fullTime = date.toLocaleString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `<span class="news-date">${fullDate}</span> ${fullTime}`;
+};
+
+const getImage = (url) =>
+  new Promise((resolve) => {
+    const image = new Image(270, 200);
+
+    image.addEventListener("load", () => {
+      resolve(image);
+    });
+    image.addEventListener("error", () => {
+      image.src = "image/no-photo.jpg";
+      resolve(image);
+    });
+    image.src = url || "image/no-photo.jpg";
+    image.className = "news-image";
+    return image;
+  });
 
 const renderCard = (data) => {
-  console.log(data);
   newsList.textContent = "";
-  data.forEach((news) => {
-    const card = document.createElement("li");
-    card.className = "news-item";
-    card.innerHTML = `
-          <img
-            src="${news.urlToImage}"
-            alt="${news.title}"
-          />
+  data.forEach(
+    async ({ urlToImage, title, url, description, publishedAt, author }) => {
+      const card = document.createElement("li");
+      card.className = "news-item";
+
+      const image = await getImage(urlToImage);
+      card.append(image);
+      image.alt = title;
+      card.insertAdjacentHTML(
+        "beforeend",
+        `;
           <h3 class="news-title">
-            <a href="${news.url}" class="news-link" target="blank">${news.title}</a>
+            <a href="${url || ""}" class="news-link" target="blank">${
+          title || ""
+        }</a>
           </h3>
           <p class="news-description">
-            ${news.description}
+            ${description || ""}
           </p>
           <div class="news-footer">
-            <time class="news-datetime" datetime="${news.publishedAt}">
-              <span class="news-date">${news.publishedAt}</span>11:00
+            <time class="news-datetime" datetime="${publishedAt}">
+              ${getDateCorrectFormat(publishedAt)}
             </time>
-            <div class="news-author">${news.author}</div>
+            <div class="news-author">${author || ""}</div>
           </div>
-       `;
-    newsList.append(card);
-  });
+       `
+      );
+      newsList.append(card);
+    }
+  );
 };
 
 const loadNews = async () => {
-  const data = await getdata("https://newsapi.org/v2/top-headlines?country=ru");
+  newsList.innerHTML = '<li class="preload"></li>';
+  const country = localStorage.getItem("country") || "ru";
+  choices.setChoiceByValue(country);
+  title.classList.add("hide");
+
+  const data = await getdata(
+    `https://newsapi.org/v2/top-headlines?country=${country}&pageSize=100&category=science`
+  );
   renderCard(data.articles);
 };
+
+const loadSearch = async (value) => {
+  const data = await getdata(
+    `https://newsapi.org/v2/everything?q=${value}&pageSize=100`
+  );
+  title.classList.remove("hide");
+  title.textContent = `По вашему запросу “${value}” найдено ${data.articles.length} результатов`;
+  choices.setChoiceByValue("");
+  renderCard(data.articles);
+};
+
+choicesElem.addEventListener("change", (event) => {
+  const value = event.detail.value;
+  localStorage.setItem("country", value);
+  loadNews();
+});
+
+formSearch.addEventListener("submit", (event) => {
+  event.preventDefault();
+  loadSearch(formSearch.search.value);
+  formSearch.reset();
+});
+
 loadNews();
