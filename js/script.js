@@ -4,6 +4,15 @@ const newsList = document.querySelector(".news-list");
 const formSearch = document.querySelector(".form-search");
 const title = document.querySelector(".title");
 
+const declOfNum = (n, titles) =>
+  titles[
+    n % 10 === 1 && n % 100 !== 1
+      ? 0
+      : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)
+      ? 1
+      : 2
+  ];
+
 const choices = new Choices(choicesElem, {
   searchEnabled: false,
   itemSelectText: "",
@@ -106,20 +115,16 @@ const loadSearch = async (value) => {
   const data = await getdata(
     `https://newsapi.org/v2/everything?q=${value}&pageSize=100`
   );
-
-  // wordForm = function (value, words) {
-  //   words = ["результат", "результата", "результатов"];
-  //   value = Math.abs(value) % 100;
-  //   let n = value % 10;
-  //   if (value > 10 && value < 20) return words[2];
-  //   if (n > 1 && n < 5) return words[1];
-  //   if (n === 1) return words[0];
-  //   return words[2];
-  // };
-  // let res = wordForm()
-
   title.classList.remove("hide");
-  title.textContent = `По вашему запросу “${value}” найдено ${data.articles.length} результатов`;
+
+  const arrStr1 = ["найден", "найдено", "найдено"];
+  const arrStr2 = ["результат", "результата", "результатов"];
+  const count = data.articles.length;
+
+  title.textContent = `По вашему запросу “${value}” ${declOfNum(
+    count,
+    arrStr1
+  )} ${count} ${declOfNum(count, arrStr2)}`;
   choices.setChoiceByValue("");
   renderCard(data.articles);
 };
